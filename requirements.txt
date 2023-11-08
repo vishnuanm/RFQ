@@ -5,3 +5,4 @@ langchain==0.0.316
 Pillow==9.3.0
 PyMuPDF
 pandas
+tiktoke==0.5.1
