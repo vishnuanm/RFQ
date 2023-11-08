@@ -1,5 +1,5 @@
-openai==0.28.1
 streamlit
+openai==0.28.1
 streamlit-extras==0.3.4
 langchain==0.0.316
 Pillow==9.3.0
