@@ -7,4 +7,3 @@ PyMuPDF
 pandas
 tiktoken==0.5.1
 faiss-cpu==1.7.4
-faiss-gpu
