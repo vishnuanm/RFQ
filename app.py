@@ -259,15 +259,14 @@ def main():
                     Thickness: 1.5 mm
                     Color:RAL 7000
                     Hazardous Area Classification: (Can be any of "Zone0", "Zone1", "Zone2", "Zone20", "Zone21", "Zone22", "Safe Area",if not mentioned, then "N/A")
-                    Certification: UL/IECEx/ATEX
-                    Panel Mounted HMI along with inches if available: (Can be either "Yes 12 inches","No" )
-                    Matrix/Mimc Console: Can be either "Yes","No" )
+                    Certification: (Like "UL","IECEx","ATEX")
+                    Panel Mounted HMI along with inches: (Can be either "Yes 12 inches","No" )
+                    Matrix/Mimc Console: (Can be either "Yes","No" )
 
                     Don't Miss any Keywords in the given format. If you don't find answer for a particular keywords answer it as 'Not available'
                     Highlight the keywords present in the output. Surround the keywords with <b> tags. Example: Like this, The quick <b>keyword1</b> jumps over the lazy <b>keyword2</b>."
                     Also Give the answer under which heading does it belong to.
                     If you don't know the answer, just say that you don't know, don't try to make up an answer.  
-                    Always say "thanks for asking!" at the end of the answer.
                     {context}
                     Question: {question}"""
                     cabinet_prompt = PromptTemplate.from_template(cabinet_template)
@@ -287,7 +286,7 @@ def main():
                     {context}
                     Question: {question}"""
                     arch_prompt = PromptTemplate.from_template(arch_template,partial_variables={"keywords":arch_keywords})
-                    input_query=f"Give the system architecture which includes following elements {system_keywords} and it is not mandatory to have all the elements in the architecture. "
+                    input_query=f"Give the system architecture which includes some of the following elements like {system_keywords} "
                     arch_reponse=generate_response(st.session_state.llm, st.session_state.retriever, arch_prompt,input_query )
                     df.loc[df['Systems']==main_systems[0],['Architecture']]=arch_reponse
 
