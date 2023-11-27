@@ -20,6 +20,7 @@ import docx2txt
 import streamlit_ext as ste
 import time
 from streamlit_chat import message
+from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 
 openai.api_type = "azure"
@@ -107,6 +108,32 @@ def generate_response(llm, retriever_data, prompt_template, query_text):
                                                 return_source_documents=True)
     return qa_interface2(query_text)['result']
 
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(10))
+def generate_embeddings(uploaded_files,openai_api_key, openai_api_base, openai_api_version):
+    embeddings = OpenAIEmbeddings(deployment_id="rfq-embeddings", chunk_size=1,openai_api_key=openai_api_key, openai_api_base=openai_api_base, openai_api_version=openai_api_version)
+    text = ""
+    for file in uploaded_files:
+        file_type = os.path.splitext(file.name)[1]
+        if file_type == ".pdf" or file_type == ".PDF":
+            pdf_file = fitz.open(stream=file.getvalue(), filetype="pdf")
+            for page in pdf_file:
+                text += page.get_text()
+        elif file_type in [".doc", ".docx"]:
+            text += docx2txt.process(file)
+
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=1000)
+    splits = text_splitter.split_text(text)
+
+    directory="vector_store"
+    vectorstore = FAISS.from_texts(splits, embedding=embeddings)
+    vectorstore.save_local(directory)
+    vector_index = FAISS.load_local('vector_store', 
+                                    OpenAIEmbeddings(openai_api_key = openai.api_key,
+                                                    deployment_id = "rfq-embeddings"))
+    retriever = vector_index.as_retriever(search_type="similarity", 
+                                            search_kwargs={"k":3})
+    return vectorstore, retriever
+
 def clear_chat():
     st.session_state['generated'] = []
     st.session_state['past'] = []
@@ -152,32 +179,7 @@ def main():
 
         if uploaded_files:
             if st.session_state.epoch == 1:
-                text = ""
-                for file in uploaded_files:
-                    file_type = os.path.splitext(file.name)[1]
-                    if file_type == ".pdf" or file_type == ".PDF":
-                        pdf_file = fitz.open(stream=file.getvalue(), filetype="pdf")
-                        for page in pdf_file:
-                            text += page.get_text()
-                    elif file_type in [".doc", ".docx"]:
-                        text += docx2txt.process(file)
-
-                text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=1000)
-                splits = text_splitter.split_text(text)
-
-                directory="vector_store"
-                vectorstore = FAISS.from_texts(splits, embedding=embeddings)
-                vectorstore.save_local(directory)
-                vector_index = FAISS.load_local('vector_store', 
-                                                OpenAIEmbeddings(openai_api_key = openai.api_key,
-                                                                deployment_id = "rfq-embeddings"))
-                retriever = vector_index.as_retriever(search_type="similarity", 
-                                            search_kwargs={"k":3})
-                st.session_state.vectorstore = vectorstore
-                st.session_state.retriever = retriever
-                    
-                    # with open(f"{store_name}.pkl","wb") as f:
-                    #     pickle.dump(vectorstore,f)
+                st.session_state.vectorstore, st.session_state.retriever = generate_embeddings(uploaded_files,openai.api_key, openai.api_base, openai.api_version)
                 st.success("Embeddings Created")
                 st.session_state.epoch += 1
             
