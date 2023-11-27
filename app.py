@@ -182,6 +182,7 @@ def main():
                 st.session_state.epoch += 1
             
             # search_container = st.container()
+            # Input For Any Further Query
             styl = f"""
             <style>
                 .stTextInput {{
@@ -197,7 +198,7 @@ def main():
             {context}
             Question: {question}"""
             chat_prompt = PromptTemplate.from_template(chat_template)
-
+            
             if "my_text" not in st.session_state:
                 st.session_state.my_text = ""
 
