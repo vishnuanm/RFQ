@@ -1,0 +1,5 @@
+{
+    "chunk_size": 2500,
+    "chunk_overlap":750,
+    "num_doc_chunks":30
+}
