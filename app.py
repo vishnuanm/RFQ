@@ -174,7 +174,7 @@ def main():
             st.session_state.epoch = 1
             st.session_state.vectorstore = None
             st.session_state.retriever = None
-            llm = AzureChatOpenAI(temperature=0.3,deployment_name="rfq", openai_api_key=openai.api_key, openai_api_base=openai.api_base, openai_api_version=openai.api_version)
+            llm = AzureChatOpenAI(temperature=0.3,deployment_name="rfq8k", openai_api_key=openai.api_key, openai_api_base=openai.api_base, openai_api_version=openai.api_version)
             st.session_state.llm = llm
 
         if uploaded_files:
