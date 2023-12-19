@@ -118,7 +118,7 @@ class BlobStorageProcessor:
                                             container_name=self.container_name,
                                             blob_name=blob_name,
                                             account_key=self.account_key,
-                                            permission=BlobSasPermissions(read=True),
+                                            permission=BlobSasPermissions(read=True,write=True,list=True),
                                             expiry=datetime.utcnow() + timedelta(hours=1))
         
         # Generating the URL - including the SAS token and one hour time limit
