@@ -3,7 +3,8 @@ import openai
 import streamlit as st
 from langchain.chat_models import AzureChatOpenAI
 from streamlit_extras.add_vertical_space import add_vertical_space
-from PIL import Image
+# from PIL import Image
+import PIL.Image
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
@@ -37,7 +38,7 @@ with st.sidebar:
     st.markdown("This is a LLM powered chatbot that can answer your questions about RFQs")
     add_vertical_space(5)
     st.write("Made by")
-    image = Image.open('./Images/logo.png')
+    image = PIL.Image.open('./Images/logo.png')
     st.sidebar.image(image, width=200)
 
 class RichExcelWriter(XlsxWriter):
