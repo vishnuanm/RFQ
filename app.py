@@ -21,6 +21,8 @@ import streamlit_ext as ste
 import time
 from streamlit_chat import message
 from tenacity import retry, stop_after_attempt, wait_random_exponential
+from spire.doc import *
+from spire.doc.common import *
 
 
 
@@ -122,12 +124,17 @@ def generate_embeddings(uploaded_files,openai_api_key, openai_api_base, openai_a
                 text += page.get_text()
         elif file_type ==".docx":
             text += docx2txt.process(file)
-        # elif file_type==".doc":
-        #     subprocess.call(['unoconv', '-d', 'document', '--format=docx', file.name])
-        #     with open(file.name,"wb") as f:
-        #         f.write(file.getbuffer())
-        #     new_docx_file=save_as_docx(file.name)
-        #     text += docx2txt.process(new_docx_file)
+        elif file_type==".doc":
+            with open(file.name,"wb") as f:
+                f.write(file.getbuffer())
+            document = Document()
+            # Load a Word DOC file
+            document.LoadFromFile(file.name)
+            # Save as .docx file
+            document.SaveToFile("ToDocx.docx", FileFormat.Docx2016)
+            text += docx2txt.process("ToDocx.docx")
+            os.remove("ToDocx.docx")
+
             
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=1000)
