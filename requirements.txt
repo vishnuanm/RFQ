@@ -31,6 +31,7 @@ streamlit-chat==0.1.1
 streamlit-ext==0.1.9
 streamlit-extras==0.3.4
 streamlit-lottie==0.0.5
+Spire.Doc
 tiktoken==0.5.1
 tenacity==8.2.3
 regex==2023.10.3
