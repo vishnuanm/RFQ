@@ -21,6 +21,9 @@ import streamlit_ext as ste
 import time
 from streamlit_chat import message
 from tenacity import retry, stop_after_attempt, wait_random_exponential
+import win32com.client as win32
+from win32com.client import constants
+import pythoncom
 
 
 openai.api_type = "azure"
@@ -108,6 +111,26 @@ def generate_response(llm, retriever_data, prompt_template, query_text):
                                                 return_source_documents=True)
     return qa_interface2(query_text)['result']
 
+def save_as_docx(path):
+    # Opening MS Word
+    # print(path)
+    word = win32.Dispatch('Word.Application',pythoncom.CoInitialize())
+    # word.visible = 0
+    cwd = os.getcwd()
+    doc = word.Documents.Open(os.path.join(cwd,path))
+    doc.Activate ()
+
+    # Rename path with .docx
+    new_file_abs = os.path.abspath(path)
+    new_file_abs = re.sub(r'\.\w+$', '.docx', new_file_abs)
+
+    # Save and Close
+    word.ActiveDocument.SaveAs(
+        new_file_abs, FileFormat=constants.wdFormatXMLDocument
+    )
+    doc.Close(False)
+    return new_file_abs
+
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(10))
 def generate_embeddings(uploaded_files,openai_api_key, openai_api_base, openai_api_version):
     embeddings = OpenAIEmbeddings(deployment_id="rfq-embeddings", chunk_size=1,openai_api_key=openai_api_key, openai_api_base=openai_api_base, openai_api_version=openai_api_version)
@@ -118,8 +141,14 @@ def generate_embeddings(uploaded_files,openai_api_key, openai_api_base, openai_a
             pdf_file = fitz.open(stream=file.getvalue(), filetype="pdf")
             for page in pdf_file:
                 text += page.get_text()
-        elif file_type in [".doc", ".docx"]:
+        elif file_type ==".docx":
             text += docx2txt.process(file)
+        elif file_type==".doc":
+            with open(file.name,"wb") as f:
+                f.write(file.getbuffer())
+            new_docx_file=save_as_docx(file.name)
+            text += docx2txt.process(new_docx_file)
+            
 
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=5000, chunk_overlap=1000)
     splits = text_splitter.split_text(text)
