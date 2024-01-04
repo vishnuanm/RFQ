@@ -26,6 +26,8 @@ pydantic_core==2.10.1
 python-dotenv==1.0.0
 python-dateutil==2.8.2
 PyMuPDF
+pywin32
+pythoncom
 streamlit
 streamlit-chat==0.1.1
 streamlit-ext==0.1.9
