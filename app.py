@@ -175,7 +175,7 @@ def main():
         uploaded_files = []
     
         # Loop through the uploaded files and append them to the list
-        for file in st.file_uploader("Upload your files here", accept_multiple_files=True,type=["pdf", "docx",".doc"]):
+        for file in st.file_uploader("Upload your files here", accept_multiple_files=True,type=["pdf", "docx"]):
             uploaded_files.append(file)
 
         f=open("keywords.json")
